@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LogiQ Signup</title>
+
+  <!-- Font Awesome for eye icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Background video */
+    .bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    /* Neon animated border box */
+    .signup-box {
+      position: relative;
+      width: 320px;
+      margin: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      color: white;
+
+      /* Neon gradient border effect */
+      border: 3px solid transparent;
+      background: 
+        linear-gradient transparent, 
+        linear-gradient(135deg, #ff00ff, #9d00ff, #ff007f, #ff00ff) border-box;
+      background-size: 400% 400%;
+      animation: borderAnimation 6s linear infinite;
+
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.7),
+                  0 0 40px rgba(157, 0, 255, 0.5);
+    }
+
+    @keyframes borderAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .signup-box h2 {
+      margin-bottom: 20px;
+      color: #fff;
+      text-shadow: 0 0 10px #ff00ff, 0 0 20px #9d00ff;
+    }
+
+    input {
+      width: 80%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      outline: none;
+      background: transparent;
+      color: #fff;
+      box-shadow: inset 0 0 10px rgba(255, 0, 255, 0.6);
+    }
+
+    input::placeholder {
+      color: #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #ff00ff, #9d00ff);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      box-shadow: 0 0 15px rgba(255, 0, 255, 0.7);
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #ff33ff, #b84dff);
+      box-shadow: 0 0 25px rgba(255, 0, 255, 1);
+    }
+
+    p {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #eee;
+    }
+
+    a {
+      color: #ff66ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      color: #fff;
+    }
+
+    /* Password container */
+    .password-container {
+      position: relative;
+      width: 80%;
+      margin: 10px auto;
+    }
+
+    .password-container input {
+      width: 100%;
+      padding-right: 40px; /* space for the eye icon */
+      box-sizing: border-box;
+    }
+
+    .password-container .toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: black;
+  transition: color 0.3s ease;
+}
+
+.password-container .toggle-password:hover {
+  color: #ff00ff; 
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Background Video -->
+  <video autoplay muted loop class="bg-video">
+    <source src="signup.mp4" type="video/mp4">
+  </video>
+
+  <div class="signup-box">
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+      <input type="email" id="email" placeholder="Enter your email" required>
+
+      <!-- Password with Eye Icon -->
+      <div class="password-container">
+        <input type="password" id="password" placeholder="Enter your password" required>
+        <i class="fa-solid fa-eye-slash toggle-password" id="togglePassword"></i>
+      </div>
+
+      <button type="submit">Sign Up</button>
+    </form>
+     <p>Already have an account? <a href="signin.html">Sign In</a></p>
+  </div>
+
+<script>
+  // Signup form submit
+  document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      const res = await fetch("https://logiq-3.onrender.com/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      alert(data.message || "Signup successful!");
+
+      if (data.redirect === "signin") {
+        window.location.href = "signin.html";   // User exists → go to signin
+      } else if (data.redirect === "fleet") {
+        window.location.href = "fleet.html"; // New signup → go to driver input
+      }
+    } catch (err) {
+      alert("Request failed: " + err.message);
+    }
+  });
+
+  // Toggle Password Visibility
+  const togglePassword = document.getElementById("togglePassword");
+  const passwordField = document.getElementById("password");
+
+  togglePassword.addEventListener("click", () => {
+    if (passwordField.type === "password") {
+      passwordField.type = "text";
+      togglePassword.classList.remove("fa-eye-slash");
+      togglePassword.classList.add("fa-eye");
+    } else {
+      passwordField.type = "password";
+      togglePassword.classList.remove("fa-eye");
+      togglePassword.classList.add("fa-eye-slash");
+    }
+  });
+</script>
+</body>
+</html>
